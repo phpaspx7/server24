@@ -1,0 +1,24 @@
+name: Compila ServerLocale
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scarica i file del repository
+        uses: actions/checkout@v4
+      - name: Installa .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Ripristina i pacchetti
+        run: dotnet restore -p:EnableWindowsTargeting=true
+      - name: Compila l'eseguibile self-contained per Windows
+        run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:EnableWindowsTargeting=true -o output
+      - name: Carica l'exe come artifact scaricabile
+        uses: actions/upload-artifact@v4
+        with:
+          name: ServerLocale
+          path: output/MiniDbServer.exe
